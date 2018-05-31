@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from contracts import contract
 
 import argparse
 import os
@@ -35,7 +36,7 @@ args = parser.parse_args()
 
 
 # ==== Disk Space ====
-
+@contract(command = str, returns = str)
 def subprocess_check_output(command):
     return subprocess.check_output(command.strip().split(' '))
 
@@ -81,7 +82,6 @@ def show_space_list(directory='.', depth=-1, order=True):
 
     cmd += abs_directory
     raw_output = subprocess_check_output(cmd)
-
     total_size = -1
     line_regex = r'(\d+)\s+([^\s]*|\D*)'
 
