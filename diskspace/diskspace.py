@@ -64,8 +64,8 @@ def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
 
     """ Checking Contracts
-        :type file_tree: dict(str: dict(str: (str,!None|list(str,!None)|int,>0)))
-        :type file_tree_node: dict(str: (str,!None|list(str,!None)|int,>0))
+        :type file_tree: dict(str: dict(str: (str,!None|list(str,!None)|int,>=0)))
+        :type file_tree_node: dict(str: (str,!None|list(str,!None)|int,>=0))
         :type path: check_string
         :type largest_size: int,>=0
         :type total_size: int,>=0
