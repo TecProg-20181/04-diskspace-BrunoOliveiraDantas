@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from contracts import contract, new_contract
 
 import argparse
 import os
@@ -36,10 +37,17 @@ args = parser.parse_args()
 
 # ==== Disk Space ====
 
+@new_contract
+def check_string(command):
+    if type(command) is not str or None:
+        msg = "This parameter must be a string."
+        raise ValueError(msg)
+
+@contract(command = 'check_string', returns = str)
 def subprocess_check_output(command):
     return subprocess.check_output(command.strip().split(' '))
 
-
+@contract(blocks = 'int,>=0', returns = 'check_string')
 def bytes_to_readable(blocks):
     byts = blocks * 512
     readable_bytes = byts
@@ -51,11 +59,20 @@ def bytes_to_readable(blocks):
     labels = ['B', 'Kb', 'Mb', 'Gb', 'Tb']
     return '{:.2f}{}'.format(round(byts/(1024.0**count), 2), labels[count])
 
-
+@contract
 def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
-    percentage = int(file_tree_node['size'] / float(total_size) * 100)
 
+    """ Checking Contracts
+        :type file_tree: dict(str: dict(str: (str,!None|list(str,!None)|int,>0)))
+        :type file_tree_node: dict(str: (str,!None|list(str,!None)|int,>0))
+        :type path: check_string
+        :type largest_size: int,>=0
+        :type total_size: int,>=0
+        :type depth: int,>=0
+    """
+    percentage = int(file_tree_node['size'] / float(total_size) * 100)
+  
     if percentage < args.hide:
         return
 
@@ -71,7 +88,7 @@ def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
             print_tree(file_tree, file_tree[child], child, largest_size,
                        total_size, depth + 1)
 
-
+@contract(directory = 'check_string', depth = int, order = 'bool,!None', returns = None)
 def show_space_list(directory='.', depth=-1, order=True):
     abs_directory = os.path.abspath(directory)
 
@@ -81,7 +98,6 @@ def show_space_list(directory='.', depth=-1, order=True):
 
     cmd += abs_directory
     raw_output = subprocess_check_output(cmd)
-
     total_size = -1
     line_regex = r'(\d+)\s+([^\s]*|\D*)'
 
@@ -138,7 +154,7 @@ def show_space_list(directory='.', depth=-1, order=True):
     print_tree(file_tree, file_tree[abs_directory], abs_directory,
                largest_size, total_size)
 
-
+@contract(returns = None)
 def main():
     if not args.all:
         show_space_list(args.directory, args.depth,
