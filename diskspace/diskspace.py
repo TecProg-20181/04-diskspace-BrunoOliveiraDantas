@@ -39,7 +39,7 @@ args = parser.parse_args()
 
 @new_contract
 def check_string(command):
-    if type(command) is not str:
+    if type(command) is not str or None:
         msg = "This parameter must be a string."
         raise ValueError(msg)
 
@@ -47,7 +47,7 @@ def check_string(command):
 def subprocess_check_output(command):
     return subprocess.check_output(command.strip().split(' '))
 
-@contract(blocks = 'int,>=0', returns = 'str,!None')
+@contract(blocks = 'int,>=0', returns = 'check_string')
 def bytes_to_readable(blocks):
     byts = blocks * 512
     readable_bytes = byts
@@ -59,11 +59,20 @@ def bytes_to_readable(blocks):
     labels = ['B', 'Kb', 'Mb', 'Gb', 'Tb']
     return '{:.2f}{}'.format(round(byts/(1024.0**count), 2), labels[count])
 
-
+@contract
 def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
-    percentage = int(file_tree_node['size'] / float(total_size) * 100)
 
+    """ Checking Contracts
+        :type file_tree: dict(str: dict(str: (str,!None|list(str,!None)|int,>0)))
+        :type file_tree_node: dict(str: (str,!None|list(str,!None)|int,>0))
+        :type path: check_string
+        :type largest_size: int,>=0
+        :type total_size: int,>=0
+        :type depth: int,>=0
+    """
+    percentage = int(file_tree_node['size'] / float(total_size) * 100)
+  
     if percentage < args.hide:
         return
 
